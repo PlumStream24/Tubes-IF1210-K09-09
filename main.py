@@ -1,5 +1,5 @@
 # Tubes Daspro
-# Last updated : 4/20/20 - 9pm
+# Last updated : 4/21/20 - 10am
 
 import csv
 
@@ -392,7 +392,7 @@ def sortA(A) :
         # mencari minimum
         min_idx = i 
         for j in range(i+1, len(A)): 
-            if A[min_idx][0][:1] > A[j][0][:1]: 
+            if A[min_idx][0][:3] > A[j][0][:3]: 
                 min_idx = j 
               
         # Swap
@@ -457,6 +457,7 @@ def lookupTiket() :
 ################################################## F16 - Exit
 # keluar program
 def shutdown() :
+    global fileuser
     global currentUser, currentSaldo
     
     for row in fileuser :
@@ -466,7 +467,68 @@ def shutdown() :
     conf = input('Apakah anda akan melakukan penyimpanan file yang sudah dilakukan (Y/N) ?')
     if conf == 'Y' :
         save()
-    
+
+
+
+################################################## B01 - Enkripsi Password
+
+
+
+################################################## B02 - Golden Account
+def golden() :
+    global fileuser
+    user = input('Masukkan username yang ingin di-upgrade: ')
+    print('Akun anda telah di-upgrade')
+
+
+################################################## B03 - Best Wahana
+# memberikan daftar 3 wahana berdasarkan jumlah tiket yang terjual
+def best() :
+    global filebeli, filewahana
+    arrBest = []
+    for row in filewahana :
+        arrBest = arrBest + [[row[0], row[1], 0]]
+
+    for arr in arrBest :
+        for row in filebeli :
+            if row[1] == arr[0] :
+                arr[2] = int(arr[2]) + int(row[3])
+
+    sortA(arrBest)
+
+    for i in range(3) :
+        print(f'{i+1} | {arrBest[i][0]} | {arrBest[i][1]} | {arrBest[i][2]}')
+
+# mengurutkan arrBest
+def sortB(A) :
+    for i in range(len(A)) :
+        # mencari maximum
+        max_idx = i 
+        for j in range(i+1, len(A)): 
+            if A[max_idx][2] < A[j][2]: 
+                max_idx = j 
+              
+        # Swap
+        A[i], A[max_idx] = A[max_idx], A[i]
+    return A
+
+
+################################################## B04 - Laporan Kehilangan Tiket
+# Melaporkan apabila ada kehilangan tiket. Akan mengurangi jumlah tiket yang dimiliki pemain.
+# Asumsi input benar
+def report() :
+    global filemilik
+    arrReport = ['' for i in range(4)]
+    arrReport[0] = input('Masukkan username: ')
+    arrReport[1] = input('Tanggal kehilangan tiket: ')
+    arrReport[2] = input('ID Wahana: ')
+    arrReport[3] = input('Jumlah tiket yang dihilangkan: ')
+
+    for row in filemilik :
+        if row[0] == arrReport[0] and row[1] == arrReport[2] :
+            row[2] = int(row[2]) - int(arrReport[3])
+
+
 
 # MAIN PROGRAM
 
