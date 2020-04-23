@@ -1,7 +1,84 @@
-# Tubes Daspro
-# Last updated : 4/21/20 - 10am
-
 import csv
+from tempfile import NamedTemporaryFile
+import shutil
+import operator
+from os import remove
+
+def load() :
+    fileuser = input('Masukkan nama file user: ')
+    filewahana = input('Masukkan nama file wahana: ')
+    filepembeliantiket = input('Masukkan nama file pembelian tiket: ')
+    filekepemilikantiket = input('Masukkan nama file kepemilikan tiket: ')
+    filepenggunaantiket = input('Masukkan nama file penggunaan tiket: ')
+    filerefundtiket = input('Masukkan nama file refund tiket: ')
+    filekritikdansaran = input('Masukkan nama file kritik dan saran: ')
+
+    shutil.copy(fileuser, 'temp_user.csv')
+    shutil.copy(filewahana, 'temp_wahana.csv')
+    shutil.copy(filepembeliantiket, 'temp_pembeliantiket.csv')
+    shutil.copy(filepenggunaantiket, 'temp_penggunaantiket.csv')
+    shutil.copy(filekepemilikantiket, 'temp_kepemilikantiket.csv')
+    shutil.copy(filerefundtiket ,'temp_refundtiket.csv')
+    shutil.copy(filekritikdansaran, 'temp_kritikdansaran.csv')
+
+
+def save() :
+    fileuser = input('Masukkan nama file user: ')
+    filewahana = input('Masukkan nama file wahana: ')
+    filepembeliantiket = input('Masukkan nama file pembelian tiket: ')
+    filekepemilikantiket = input('Masukkan nama file kepemilikan tiket: ')
+    filepenggunaantiket = input('Masukkan nama file penggunaan tiket: ')
+    filerefundtiket = input('Masukkan nama file refund tiket: ')
+    filekritikdansaran = input('Masukkan nama file kritik dan saran: ')
+
+
+    shutil.move('temp_user.csv', fileuser)
+    shutil.move('temp_wahana.csv', filewahana)
+    shutil.move('temp_pembeliantiket.csv', filepembeliantiket)
+    shutil.move('temp_penggunaantiket.csv', filepenggunaantiket)
+    shutil.move('temp_kepemilikantiket.csv',filekepemilikantiket)
+    shutil.move('temp_refundtiket.csv', filerefundtiket)
+    shutil.move('temp_kritikdansaran.csv', filekritikdansaran)
+
+
+
+def signup() :
+    used = False
+    newInput = ['' for i in range(7)]
+    newInput[0] = input('Masukkan nama pemain: ')
+    newInput[1] = input('Masukkan tanggal lahir pemain: ')
+    newInput[2] = input('Masukkan tinggi badan pemain: ')
+    newInput[3] = input('Masukkan username pemain: ')
+    newInput[4] = input('Masukkan password pemain: ')
+    newInput[5] = 'pemain'
+    newInput[6] = 0
+
+    with open('temp_user.csv','r') as csvfile :
+        for row in csv.reader(csvfile) :
+            if newInput[3] == row[3] :
+                print('Username telah digunakan.')
+                used = True
+    if not used :
+        with open('temp_user.csv', 'a', newline='') as csvfile:
+            writecsv = csv.writer(csvfile)
+            writecsv.writerow(newInput)
+            print(f'Selamat mejadi pemain, {newInput[0]}! Selamat bermain.')
+        
+
+def login() :
+    while True :
+        username = input('Masukkan username: ')
+        password = input('Masukkan password: ')
+        
+        with open('temp_user.csv') as csvfile:
+            readcsv = csv.reader(csvfile)
+            for row in readcsv :
+                if username == row[3] and password == row[4] :
+                    print(f'Selamat bersenang-senang, {row[0]}!')
+                    return (row[1], row[2], row[3], row[5], int(row[6]), True)
+            else :
+                print('Ups, password salah atau kamu tidak terdaftar dalam sistem kami. Silahkan coba lagi!\n')
+
 
 def display(role) :
     global boolLogin
@@ -36,7 +113,7 @@ def display(role) :
         8. Exit
         ''')
         inp = input('')
-        if inp == '1' : signUp()
+        if inp == '1' : signup()
         elif inp == '2' : searchPemain()
         elif inp == '3' : lookupKritik()
         elif inp == '4' : addWahana()
@@ -46,130 +123,24 @@ def display(role) :
         elif inp == '8' : shutdown(); boolLogin = False
 
 
-################################################## F01 - Load
-# Mengubah csv ke array
-def toList(namafile) :
-    with open(namafile, 'r') as f :
-        j = 0
-        for row in csv.reader(f) :
-            j += 1
-    with open(namafile,'r') as f :
-        array = ['' for i in range(j)]
-        i = 0
-        for row in csv.reader(f) :
-            array[i] = row
-            i += 1
-
-    return array
-
-# load file csv dan mengubahnya ke array 2 dimensi.
-def load() :
-    global fileuser, filewahana, filebeli, fileguna, filemilik, filerefund, filekritik
-
-    namafuser = input('Masukkan nama file user: ') or 'user.csv'
-    namafwahana = input('Masukkan nama file wahana: ') or 'wahana.csv'
-    namafbeli = input('Masukkan nama file pembelian tiket: ') or 'pembeliantiket.csv'
-    namafmilik = input('Masukkan nama file kepemilikan tiket: ') or 'kepemilikantiket.csv'
-    namafguna = input('Masukkan nama file penggunaan tiket: ') or 'penggunaantiket.csv'
-    namafrefund = input('Masukkan nama file refund tiket: ') or 'refundtiket.csv'
-    namafkritik = input('Masukkan nama file kritik dan saran: ') or 'kritikdansaran.csv'
-
-    fileuser = toList(namafuser)
-    filewahana = toList(namafwahana)
-    filebeli = toList(namafbeli)
-    fileguna = toList(namafguna)
-    filemilik = toList(namafmilik)
-    filerefund = toList(namafrefund)
-    filekritik = toList(namafkritik)
-
-
-################################################## F02 - Save
-# menyimpan array data ke csv
-def save() :
-    global fileuser, filewahana, filebeli, fileguna, filemilik, filerefund, filekritik
-
-    namafuser = input('Masukkan nama file user: ') or 'user.csv'
-    namafwahana = input('Masukkan nama file wahana: ') or 'wahana.csv'
-    namafbeli = input('Masukkan nama file pembelian tiket: ') or 'pembeliantiket.csv'
-    namafmilik = input('Masukkan nama file kepemilikan tiket: ') or 'kepemilikantiket.csv'
-    namafguna = input('Masukkan nama file penggunaan tiket: ') or 'penggunaantiket.csv'
-    namafrefund = input('Masukkan nama file refund tiket: ') or 'refundtiket.csv'
-    namafkritik = input('Masukkan nama file kritik dan saran: ') or 'kritikdansaran.csv'
-
-    with open(namafuser,'r') as user, open(namafwahana,'r') as wahana, open(namafbeli,'r') as beli, open(namafguna,'r') as guna, open(namafmilik,'r') as milik, open(namafrefund,'r') as refund, open(namafkritik,'r') as kritik:
-        csv.writer(user).writerows(fileuser)
-        csv.writer(wahana).writerows(filewahana)
-        csv.writer(beli).writerows(filebeli)
-        csv.writer(guna).writerows(fileguna)
-        csv.writer(milik).writerows(filemilik)
-        csv.writer(refund).writerows(filerefund)
-        csv.writer(kritik).writerows(filekritik)
-
-
-################################################## F03 - SignUp
-# Menambah user ke user.csv. Jika username telah digunakan, akan return error. Asumsi input lainnya benar.
-def signUp() :
-    global fileuser
-
-    used = False
-    newUser = ['' for i in range(7)]
-    newUser[0] = input('Masukkan nama pemain: ')
-    newUser[1] = input('Masukkan tanggal lahir pemain (DD/MM/YYYY): ')
-    newUser[2] = input('Masukkan tinggi badan pemain (cm): ')
-    newUser[3] = input('Masukkan username pemain: ')
-    newUser[4] = input('Masukkan password pemain: ')
-    newUser[5] = 'pemain'
-    newUser[6] = 0
-    
-    for row in fileuser :
-        if newUser[3] == row[3] :
-            print('Username telah digunakan.')
-            used = True
-    if not used :
-        fileuser = fileuser + [newUser]
-        print(f'Selamat mejadi pemain, {newUser[0]}! Selamat bermain.')
-
-
-################################################## F04 - Login
-# login aplikasi, akan diulang sampai input benar.
-# return data-data user yang telah login untuk digunakan di fungsi lain.
-def login() :
-    global fileuser
-
-    while True :
-        username = input('Masukkan username: ')
-        password = input('Masukkan password: ')
-
-        for row in fileuser :
-            if username == row[3] and password == row[4] :
-                print(f'Selamat bersenang-senang, {row[0]}!')
-                return (row[1], row[2], row[3], row[5], int(row[6]), True)
-        else :
-            print('Ups, password salah atau kamu tidak terdaftar dalam sistem kami. Silahkan coba lagi!\n')
-
-
-################################################## F05 - Pencarian Pemain
-# mencari data pemain berdasarkan username
 def searchPemain() :
-    global fileuser
     searchUsername = input('Masukkan username: ')
 
-    for row in fileuser :
-        if searchUsername == row[3] :
-            print(f'''
-            Nama Pemain : {row[0]}
-            Tanggal Lahir Pemain : {row[1]}
-            Tinggi Pemain : {row[2]}
-            ''')
-            break
-    else :
-        print('Pemain tidak ditemukan')
+    with open('temp_user.csv') as csvfile:
+        readcsv = csv.reader(csvfile)
+        for row in readcsv :
+            if searchUsername == row[3] :
+                print(f'''
+                Nama Pemain : {row[0]}
+                Tanggal Lahir Pemain : {row[1]}
+                Tinggi Pemain : {row[2]}
+                ''')
+                break
+        else :
+            print('Pemain tidak ditemukan')
 
 
-################################################## F06 - Pencarian Wahana
-# mencari wahana yang sesuai dengan spesifikasi yang dicari
 def searchWahana() :
-    global filewahana
     batasUmur = ['','anak-anak','dewasa','semua umur']
     batasTinggi = ['','170','tanpa batasan']
 
@@ -186,66 +157,42 @@ def searchWahana() :
 
     while True :
         searchBatasUmur = int(input('Batasan umur pemain: '))
-        if searchBatasUmur > 0 and searchBatasUmur <= 3 : break
+        if searchBatasUmur >= 0 and searchBatasUmur <= 3 : break
         print('Batasan umur tidak valid!')
     while True :
         searchBatasTinggi = int(input('Batasan tinggi badan: '))
-        if searchBatasTinggi > 0 and searchBatasTinggi <= 2 : break
+        if searchBatasTinggi >=0 and searchBatasTinggi <= 2 : break
         print('Batasan tinggi tidak valid!')
 
     print('Hasil pencarian:')
 
+    with open('temp_wahana.csv') as csvfile:
+        readcsv = csv.reader(csvfile)
+        for row in readcsv :
+            found = False
+            if batasUmur[searchBatasUmur] == row[3] and batasTinggi[searchBatasTinggi] == row[4] :
+                print(f'{row[0]} | {row[1]} | {row[2]}')
+                found = True
+        if not found :
+            print('Tidak ada wahana yang sesuai dengan pencarian anda.')
+
+
+def addWahana() :
+    print('Masukkan informasi wahana yang ditambahakan:')
+    newWahana = ['' for i in range(5)]
+    newWahana[0] = input('Masukkan ID wahana: ')
+    newWahana[1] = input('Masukkan nama wahana: ')
+    newWahana[2] = input('Masukkan harga tiket :')
+    newWahana[3] = input('Batasan umur: ')
+    newWahana[4] = input('Batasan tinggi badan: ')
+
+    with open('temp_wahana.csv','a',newline='') as csvfile :
+        writecsv = csv.writer(csvfile)
+        writecsv.writerow(newWahana)
     
-    for row in filewahana :
-        found = False
-        if batasUmur[searchBatasUmur] == row[3] and batasTinggi[searchBatasTinggi] == row[4] :
-            print(f'{row[0]} | {row[1]} | {row[2]}')
-            found = True
-    if not found :
-        print('Tidak ada wahana yang sesuai dengan pencarian anda.')
+    print('Info wahana telah ditambahkan!')
 
 
-################################################## F07 - Pembelian Tiket
-# membeli tiket
-def buyTicket() :
-    global filemilik, filebeli, filewahana
-    global currentUser, currentTL, currentTinggi, currentSaldo
-    belitiket = ['' for i in range(4)]
-    belitiket[0] = currentUser
-    belitiket[1] = input('Masukkan ID wahana: ')
-    belitiket[2] = input('Masukkan tanggal hari ini: ')
-    belitiket[3] = input('Jumlah tiket yang dibeli: ')
-
-    miliktiket = [belitiket[0], belitiket[1], belitiket[3]]
-    katUmur = age(currentTL, belitiket[2])
-    
-    for row1 in filewahana :
-        if row1[0] == belitiket[1]:
-            if validTinggi(currentTinggi, row1[4]) and validUmur(katUmur,row1[3]) :
-                if cukupSaldo(currentSaldo, row1[2], belitiket[3]) :
-                    # menambahkan tiket ke kepemilikan tiket
-                    new = True
-                    for row2 in filemilik :
-                        if currentUser == row2[0] and row2[1] == belitiket[1]:
-                            row2[2] = int(row2[2]) + int(belitiket[3])
-                            new = False
-                    if new :
-                        filemilik = filemilik + [miliktiket]
-                    
-                    # menambahkan data ke pembelian data
-                    filebeli = filebeli + [belitiket]
-                    # mengurangi saldo
-                    currentSaldo -= (int(row1[2]) * int(belitiket[3]))
-                    
-                    print(f'Selamat bersenang-senang di {row1[1]}!')
-                    break
-                else :
-                    print('Saldo anda tidak cukup. \nSilakan mengisi saldo anda.')   
-            else :
-                print('Anda tidak memenuhi persyaratan untuk memainkan wahana ini. \nSilahkan menggunakan wahana lain yang tersedia.')
-
-# menghitung umur berdasarkan tanggal sekarang dan tanggal lahir
-# output kategori usia berdasarkan umur tersebut
 def age(TL, crrDate) :
     TLdate = int(TL[:2])
     TLmonth = int(TL[3:5])
@@ -260,7 +207,51 @@ def age(TL, crrDate) :
     else :
         return 'anak-anak'
 
-# menentukan apakah cukup umur untuk menaiki wahana
+
+def buyTicket() :
+    global currentUser
+    global currentTL
+    global currentTinggi
+    global currentSaldo
+    belitiket = ['' for i in range(4)]
+    belitiket[0] = currentUser
+    belitiket[1] = input('Masukkan ID wahana: ')
+    belitiket[2] = input('Masukkan tanggal hari ini: ')
+    belitiket[3] = input('Jumlah tiket yang dibeli: ')
+
+    miliktiket = belitiket.copy()
+    del miliktiket[2]
+    katUmur = age(currentTL, belitiket[2])
+    tempfile = NamedTemporaryFile(mode='w', delete=False, newline='')
+    
+    with open('temp_wahana.csv','r') as wahana, open('temp_pembeliantiket.csv','a', newline='') as pembelian :
+        for row1 in csv.reader(wahana) :
+            if row1[0] == belitiket[1]:
+                if validTinggi(currentTinggi, row1[4]) and validUmur(katUmur,row1[3]) :
+                    if cukupSaldo(currentSaldo, row1[2], belitiket[3]) :
+                        with open('temp_kepemilikantiket.csv','r') as milik, tempfile :
+                            new = True
+                            for row2 in csv.reader(milik) :
+                                if currentUser == row2[0] and row2[1] == belitiket[1]:
+                                    row2[2] = int(row2[2]) + int(belitiket[3])
+                                    csv.writer(tempfile).writerow(row2)
+                                    new = False
+                                else :
+                                    csv.writer(tempfile).writerow(row2)
+                            if new :
+                                csv.writer(tempfile).writerow(miliktiket)
+                        shutil.move(tempfile.name, 'temp_kepemilikantiket.csv')
+                        csv.writer(pembelian).writerow(belitiket)
+                        currentSaldo -= (int(row1[2]) * int(belitiket[3]))
+                        print(f'Selamat bersenang-senang di {row1[1]}!')
+                        break
+                    else :
+                        print('Saldo anda tidak cukup. \nSilakan mengisi saldo anda.')   
+                else :
+                    print('Anda tidak memenuhi persyaratan untuk memainkan wahana ini. \nSilahkan menggunakan wahana lain yang tersedia.')
+
+
+
 def validUmur(paramUmur, batasanUmur) :
     if batasanUmur == 'semua umur' :
         return True
@@ -275,7 +266,6 @@ def validUmur(paramUmur, batasanUmur) :
         else : 
             return False
 
-# menentukan apakah cukup tinggi untuk menaiki wahana
 def validTinggi(paramTinggi, batasanTinggi) :
     if batasanTinggi == 'tanpa batasan' :
         return True
@@ -285,7 +275,6 @@ def validTinggi(paramTinggi, batasanTinggi) :
         else :
             return False
 
-# menentukan apakah saldo cukup
 def cukupSaldo(paramSaldo, hargaTiket, banyakTiket) :
     if int(paramSaldo) >= int(hargaTiket) * int(banyakTiket) :
         return True
@@ -293,244 +282,164 @@ def cukupSaldo(paramSaldo, hargaTiket, banyakTiket) :
         return False
 
 
-################################################## F08 - Menggunakkan Tiket
-# menggunakkan tiket
 def useTicket() :
-    global filemilik, fileguna
-    global currentUser
     found = False
+    global currentUser
     gunakanTiket = ['' for i in range(4)]
     gunakanTiket[0] = currentUser
     gunakanTiket[1] = input('Masukkan ID Wahana: ')
     gunakanTiket[2] = input('Masukkan tanggal hari ini: ')
     gunakanTiket[3] = input('Jumlah tiket yang digunakan: ')
 
-    
-    for row in filemilik :
-        if row[0] == currentUser and row[1] == gunakanTiket[1] :
-            found = True
-            if (int(row[2]) - int(gunakanTiket[3])) >= 0 :
-                # mengurangi jumlah tiket yang dimiliki
+    tempfile = NamedTemporaryFile(mode='w', delete=False, newline='')
+
+    with open('temp_kepemilikantiket.csv','r') as inp, open('temp_penggunaantiket.csv','a', newline='') as out, tempfile :
+        writecsv = csv.writer(tempfile)
+        for row in csv.reader(inp) :
+            if row[0] == currentUser and row[1] == gunakanTiket[1] :
+                found = True
                 row[2] = int(row[2]) - int(gunakanTiket[3])
-                # menambahkan data ke penggunaan wahana
-                for row in fileguna :
-                    if row[0] == gunakanTiket[0] and row[1] == gunakanTiket[1] and row[2] == gunakanTiket[2] :
-                        row[3] = int(row[3]) + int(gunakanTiket[3])
+                if row[2] >= 0 :
+                    csv.writer(out).writerow(gunakanTiket)
+                    if row[2] > 0 :
+                        writecsv.writerow(row)
+                    else : #row[2] == 0
+                        continue
+                    print('Terima kasih telah bermain.')
                 else :
-                    fileguna = fileguna + [gunakanTiket]
-                
-                print('Terima kasih telah bermain.')
+                    print('Anda tidak memiliki cukup tiket.')
             else :
-                print('Anda tidak memiliki cukup tiket.')
-        
-    if not found :
-        print('Anda tidak memiliki tiket atau input ID salah.')
+                writecsv.writerow(row)
+        if not found :
+            print('Anda tidak memiliki tiket atau input ID salah.')
+
+    shutil.move(tempfile.name, 'temp_kepemilikantiket.csv')
 
 
-################################################## F09 - Refund
-# refund tiket
+
 def refund() :
-    global currentSaldo, currentUser
-    global filemilik, filerefund, filewahana
+    global currentSaldo
+    global currentUser
     found = False
-
     arrRefund = ['' for i in range(4)]
     arrRefund[0] = currentUser
     arrRefund[1] = input('Masukkan ID wahana: ')
     arrRefund[2] = input('Masukkan tanggal hari ini: ')
     arrRefund[3] = input('Jumlah tiket yang di-refund: ')
 
-    
-    for row1 in filemilik :
-        if row1[0] == currentUser and row1[1] == arrRefund[1] :
-            found = True
-            if (int(row1[2]) - int(arrRefund[3])) >= 0 :
-                # menulis ke array
+    tempfile = NamedTemporaryFile(mode='w', delete=False, newline='')
+
+    with open('temp_kepemilikantiket.csv','r') as inp, open('temp_wahana.csv', 'r') as data, open('temp_refundtiket.csv', 'a', newline='') as out, tempfile :
+        for row1 in csv.reader(inp) :
+            if row1[0] == currentUser and row1[1] == arrRefund[1] :
+                found = True
                 row1[2] = int(row1[2]) - int(arrRefund[3])
-                filerefund = filerefund + [arrRefund]
-
-                # menambah saldo
-                for row2 in filewahana :
-                    if row2[0] == arrRefund[1] :
-                        currentSaldo += (int(row2[2]) * int(arrRefund[3]))
-                
-                print('Uang refund telah kami berikan kepada akun anda.')
-
+                if row1[2] >= 0 :
+                    csv.writer(out).writerow(arrRefund)
+                    for row2 in csv.reader(data) :
+                        if row2[0] == arrRefund[1] :
+                            currentSaldo += (int(row2[2]) * int(arrRefund[3]))
+                    if row1[2] > 0 :
+                        csv.writer(tempfile).writerow(row1)
+                    else : #row1[2] == 0
+                        continue
+                    print('Uang refund telah kami berikan kepada akun anda.')
+                else :
+                    print('Anda tidak memiliki cukup tiket.')
             else :
-                print('Anda tidak memiliki cukup tiket.')
-        
-    if not found :
-        print('Anda tidak memiliki tiket atau input ID salah.')
+                csv.writer(tempfile).writerow(row1)
+        if not found :
+            print('Anda tidak memiliki tiket atau input ID salah.')
 
-
-################################################## F10 - Kritik dan Saran
-# memasukkan kritik
+    shutil.move(tempfile.name, 'temp_kepemilikantiket.csv')
+   
 def kritik() :
-    global currentUser, filekritik
+    global currentUser
     arrKritik = ['' for i in range(4)]
     arrKritik[0] = currentUser
     arrKritik[1] = input('Masukkan ID wahana: ')
     arrKritik[2] = input('Masukkan tanggal pelaporan: ')
     arrKritik[3] = input('Kritik/saran Anda: ')
 
-    filekritik = filekritik + [arrKritik]
+    with open('temp_kritikdansaran.csv','a', newline='') as out :
+        csv.writer(out).writerow(arrKritik)
 
-
-################################################## F11 - Melihat Kritik dan Saran
-# meliihat kritik terurut bedasarkan ID Wahana
-def lookupKritik() :
-    global filekritik
-
-    print('Kritik dan saran:')
-    sortedList = sortA(filekritik)
-    for row in sortedList :
-        print(f'{row[1]} | {row[2]} | {row[0]} | {row[3]}')
-
-# Mengurutkan kritik secara alfabetis berdasarkan ID Wahana
-def sortA(A) :
-    for i in range(len(A)) :
-        # mencari minimum
-        min_idx = i 
-        for j in range(i+1, len(A)): 
-            if A[min_idx][0][:3] > A[j][0][:3]: 
-                min_idx = j 
-              
-        # Swap
-        A[i], A[min_idx] = A[min_idx], A[i]
-    return A
-
-
-################################################## F12 - Menambahkan Wahana Baru
-# Menambah wahana ke wahana.csv. Asumsi input benar.
-def addWahana() :
-    global filewahana
-
-    print('Masukkan informasi wahana yang ditambahakan:')
-    newWahana = ['' for i in range(5)]
-    newWahana[0] = input('Masukkan ID wahana (AAANNN): ')
-    newWahana[1] = input('Masukkan nama wahana: ')
-    newWahana[2] = input('Masukkan harga tiket: ')
-    newWahana[3] = input('Batasan umur (anak-anak/dewasa/semua umur): ')
-    newWahana[4] = input('Batasan tinggi badan (cm): ')
-
-    filewahana = filewahana + [newWahana]
-    
-    print('Info wahana telah ditambahkan!')
-
-
-################################################## F13 - Top Up Saldo
-# topup saldo
 def topup() :
-    global fileuser
     user = input('Masukkan username: ')
     addSaldo = int(input('Masukkan saldo yang di-top up: '))
 
-    for row in fileuser :
-        if user == row[3] :
-            row[6] = int(row[6]) + addSaldo
-            print(f'Top up berhasil. Saldo {row[0]} bertambah menjadi {row[6]}')
+    tempfile = NamedTemporaryFile(mode='w', delete=False, newline='')
 
-
-################################################## F14 - Melihat Riwayat Penggunaan Wahana
-# melihat riwayat
-def history() :
-    global fileguna
-    idwahana = input('Masukkan ID wahana: ')
+    with open('temp_user.csv','r') as datauser, tempfile :
+        for row in csv.reader(datauser) :
+            if user == row[3] :
+                row[6] = int(row[6]) + addSaldo
+            csv.writer(tempfile).writerow(row)
+    shutil.move(tempfile.name, 'temp_user.csv')
     
-    for row in fileguna :
-        if row[1] == idwahana :
-            print(f'{row[2]} | {row[0]} | {row[3]}')
+    with open('temp_user.csv','r') as datauser :
+        for row in csv.reader(datauser) :
+            if user == row[3] :
+                print(f'Top up berhasil. Saldo {row[0]} bertambah menjadi {row[6]}')
+
+def lookupKritik() :
+    print('Kritik dan saran:')
+    with open('temp_kritikdansaran.csv', 'r') as data :
+        tabel = [line for line in csv.reader(data)]
+    tabel.sort(key=operator.itemgetter(1))
+    with open('temp_kritikdansaran.csv','w', newline='') as data :
+        csv.writer(data).writerows(tabel)
+    with open('temp_kritikdansaran.csv','r') as data :
+        for row in csv.reader(data) :
+            print(f'{row[1]} | {row[2]} | {row[0]} | {row[3]}')
 
 
-################################################## F15 - Melihat Jumlah Tiket Pemain
-# melihat jumlah tiket pemain
 def lookupTiket() :
-    global filemilik, filewahana
     user = input('Masukkan username: ')
-    for row2 in filemilik :
-        if user == row2[0]:
-            for row1 in filewahana :
-                if row2[1] == row1[0] :
-                    print(row2[1], '|', row1[1], '|', row2[2])
+    with open('temp_kepemilikantiket.csv','r') as data, open('temp_wahana.csv','r') as listwahana :
+        for row2 in csv.reader(data) :
+            if user == row2[0]:
+                for row1 in csv.reader(listwahana) :
+                    if row2[1] == row1[0] :
+                        print(row2[1], '|', row1[1], '|', row2[2])
 
 
-################################################## F16 - Exit
-# keluar program
+def history() :
+    idwahana = input('Masukkan ID wahana: ')
+    with open('temp_penggunaantiket.csv','r') as data :
+        for row in csv.reader(data) :
+            if row[1] == idwahana :
+                print(f'{row[2]} | {row[0]} | {row[3]}')
+
+
 def shutdown() :
-    global fileuser
-    global currentUser, currentSaldo
-    
-    for row in fileuser :
-        if currentUser == row[3] :
-            row[6] = currentSaldo
+    global currentUser
+    global currentSaldo
+    tempfile = tempfile = NamedTemporaryFile(mode='w', delete=False, newline='')
+
+    with open('temp_user.csv', 'r') as data, tempfile :
+        for row in csv.reader(data) :
+            if currentUser == row[3] :
+                row[6] = currentSaldo
+                csv.writer(tempfile).writerow(row)
+            else :
+                csv.writer(tempfile).writerow(row)
+    shutil.move(tempfile.name, 'temp_user.csv')
 
     conf = input('Apakah anda akan melakukan penyimpanan file yang sudah dilakukan (Y/N) ?')
     if conf == 'Y' :
         save()
+    elif conf == 'N' :
+        remove('temp_user.csv')
+        remove('temp_wahana.csv')
+        remove('temp_pembeliantiket.csv')
+        remove('temp_penggunaantiket.csv')
+        remove('temp_kepemilikantiket.csv')
+        remove('temp_refundtiket.csv')
+        remove('temp_kritikdansaran.csv')
 
 
-
-################################################## B01 - Enkripsi Password
-
-
-
-################################################## B02 - Golden Account
-def golden() :
-    global fileuser
-    user = input('Masukkan username yang ingin di-upgrade: ')
-    print('Akun anda telah di-upgrade')
-
-
-################################################## B03 - Best Wahana
-# memberikan daftar 3 wahana berdasarkan jumlah tiket yang terjual
-def best() :
-    global filebeli, filewahana
-    arrBest = []
-    for row in filewahana :
-        arrBest = arrBest + [[row[0], row[1], 0]]
-
-    for arr in arrBest :
-        for row in filebeli :
-            if row[1] == arr[0] :
-                arr[2] = int(arr[2]) + int(row[3])
-
-    sortA(arrBest)
-
-    for i in range(3) :
-        print(f'{i+1} | {arrBest[i][0]} | {arrBest[i][1]} | {arrBest[i][2]}')
-
-# mengurutkan arrBest
-def sortB(A) :
-    for i in range(len(A)) :
-        # mencari maximum
-        max_idx = i 
-        for j in range(i+1, len(A)): 
-            if A[max_idx][2] < A[j][2]: 
-                max_idx = j 
-              
-        # Swap
-        A[i], A[max_idx] = A[max_idx], A[i]
-    return A
-
-
-################################################## B04 - Laporan Kehilangan Tiket
-# Melaporkan apabila ada kehilangan tiket. Akan mengurangi jumlah tiket yang dimiliki pemain.
-# Asumsi input benar
-def report() :
-    global filemilik
-    arrReport = ['' for i in range(4)]
-    arrReport[0] = input('Masukkan username: ')
-    arrReport[1] = input('Tanggal kehilangan tiket: ')
-    arrReport[2] = input('ID Wahana: ')
-    arrReport[3] = input('Jumlah tiket yang dihilangkan: ')
-
-    for row in filemilik :
-        if row[0] == arrReport[0] and row[1] == arrReport[2] :
-            row[2] = int(row[2]) - int(arrReport[3])
-
-
-
-# MAIN PROGRAM
+# main program
 
 load()
 currentTL, currentTinggi, currentUser, currentRole, currentSaldo, boolLogin = login()
