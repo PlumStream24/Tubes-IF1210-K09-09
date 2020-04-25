@@ -1,5 +1,5 @@
 # Tubes Daspro
-# Last updated : 23/04/20 - 7pm
+# Last updated : 25/04/20 - 9am
 
 import csv
 
@@ -14,6 +14,7 @@ def display(role) :
         4. Refund
         5. Kritik dan Saran
         6. Exit
+        7. Report
         ''')
         inp = input('')
         if inp == '1' : searchWahana()
@@ -22,6 +23,7 @@ def display(role) :
         elif inp == '4' : refund()
         elif inp == '5' : kritik()
         elif inp == '6' : shutdown(); boolLogin = False
+        elif inp == '7' : report()
 
     else :
         print('''
@@ -34,6 +36,7 @@ def display(role) :
         6. Melihat Riwayat Penggunaan Wahana
         7. Melihat Jumlah Tiket Pemain
         8. Exit
+        9. Melihat Wahana Terbaik
         ''')
         inp = input('')
         if inp == '1' : signUp()
@@ -44,13 +47,14 @@ def display(role) :
         elif inp == '6' : history()
         elif inp == '7' : lookupTiket()
         elif inp == '8' : shutdown(); boolLogin = False
+        elif inp == '9' : best()
 
 
 ################################################## F01 - Load
 # Mengubah csv ke array
 def toList(namafile) :
     with open(namafile,'r') as f :
-        array = ['' for i in range(100)]
+        array = [[] for i in range(100)]
         i = 0
         for row in csv.reader(f) :
             array[i] = row
@@ -61,7 +65,7 @@ def toList(namafile) :
 
 # load file csv dan mengubahnya ke array 2 dimensi.
 def load() :
-    global fileuser, filewahana, filebeli, fileguna, filemilik, filerefund, filekritik
+    global fileuser, filewahana, filebeli, fileguna, filemilik, filerefund, filekritik, filereport
     # input nama file
     namafuser = input('Masukkan nama file user: ') or 'user.csv'
     namafwahana = input('Masukkan nama file wahana: ') or 'wahana.csv'
@@ -70,6 +74,7 @@ def load() :
     namafguna = input('Masukkan nama file penggunaan tiket: ') or 'penggunaantiket.csv'
     namafrefund = input('Masukkan nama file refund tiket: ') or 'refundtiket.csv'
     namafkritik = input('Masukkan nama file kritik dan saran: ') or 'kritikdansaran.csv'
+    namafreport = 'report.csv'
 
     # menulis ke array
     fileuser = toList(namafuser)
@@ -79,12 +84,13 @@ def load() :
     filemilik = toList(namafmilik)
     filerefund = toList(namafrefund)
     filekritik = toList(namafkritik)
+    filereport = toList(namafreport)
 
 
 ################################################## F02 - Save
 # menyimpan array data ke csv
 def save() :
-    global fileuser, filewahana, filebeli, fileguna, filemilik, filerefund, filekritik
+    global fileuser, filewahana, filebeli, fileguna, filemilik, filerefund, filekritik, filereport
     # input nama file
     namafuser = input('Masukkan nama file user: ') or 'user.csv'
     namafwahana = input('Masukkan nama file wahana: ') or 'wahana.csv'
@@ -93,9 +99,10 @@ def save() :
     namafguna = input('Masukkan nama file penggunaan tiket: ') or 'penggunaantiket.csv'
     namafrefund = input('Masukkan nama file refund tiket: ') or 'refundtiket.csv'
     namafkritik = input('Masukkan nama file kritik dan saran: ') or 'kritikdansaran.csv'
+    namafreport = 'report.csv'
 
     # menulis ke csv
-    with open(namafuser,'w',newline='') as user, open(namafwahana,'w',newline='') as wahana, open(namafbeli,'w',newline='') as beli, open(namafguna,'w',newline='') as guna, open(namafmilik,'w',newline='') as milik, open(namafrefund,'w',newline='') as refund, open(namafkritik,'w',newline='') as kritik:
+    with open(namafuser,'w',newline='') as user, open(namafwahana,'w',newline='') as wahana, open(namafbeli,'w',newline='') as beli, open(namafguna,'w',newline='') as guna, open(namafmilik,'w',newline='') as milik, open(namafrefund,'w',newline='') as refund, open(namafkritik,'w',newline='') as kritik, open(namafreport,'w',newline='') as report:
         csv.writer(user).writerows(fileuser)
         csv.writer(wahana).writerows(filewahana)
         csv.writer(beli).writerows(filebeli)
@@ -103,6 +110,7 @@ def save() :
         csv.writer(milik).writerows(filemilik)
         csv.writer(refund).writerows(filerefund)
         csv.writer(kritik).writerows(filekritik)
+        csv.writer(report).writerows(filereport)
 
 
 ################################################## F03 - SignUp
@@ -211,9 +219,9 @@ def searchWahana() :
     print('Hasil pencarian:')
 
     # searching
+    found = False
     for row in filewahana :
         if row == []  : break
-        found = False
         if batasUmur[searchBatasUmur] == row[3] and batasTinggi[searchBatasTinggi] == row[4] :
             print(f'{row[0]} | {row[1]} | {row[2]}')
             found = True
@@ -236,7 +244,7 @@ def buyTicket() :
     katUmur = age(currentTL, belitiket[2])
     
     for row1 in filewahana :
-        if row1 == [] : print('input ID wahana salah.'); break
+        if row1 == [] : break
         # validasi
         if row1[0] == belitiket[1]:
             if validTinggi(currentTinggi, row1[4]) and validUmur(katUmur,row1[3]) :
@@ -404,6 +412,7 @@ def refund() :
                 for row2 in filewahana :
                     if row2[0] == arrRefund[1] :
                         currentSaldo += (int(row2[2]) * int(arrRefund[3]))
+                        break
                 
                 print('Uang refund telah kami berikan kepada akun anda.')
             else :
@@ -563,29 +572,44 @@ def golden() :
 # memberikan daftar 3 wahana berdasarkan jumlah tiket yang terjual
 def best() :
     global filebeli, filewahana
-    arrBest = []
+    # membuat array kosong arrBest sesuai banyaknya wahana
+    l = 0
     for row in filewahana :
-        arrBest = arrBest + [[row[0], row[1], 0]]
+        if row == [] : break
+        l += 1
+    arrBest = ['' for i in range(l)]
 
+    # mengisi arrBest dengan wahana
+    i = 0
+    for row in filewahana :
+        if row == [] : break
+        arrBest[i] = [row[0], row[1], 0]
+        i += 1
+
+    # menambah jumlah tiket setiap wahana
     for arr in arrBest :
         for row in filebeli :
+            if row == [] : break
             if row[1] == arr[0] :
                 arr[2] = int(arr[2]) + int(row[3])
-
-    sortA(arrBest)
-
+    # sorting
+    sortB(arrBest)
+    # print
     for i in range(3) :
         print(f'{i+1} | {arrBest[i][0]} | {arrBest[i][1]} | {arrBest[i][2]}')
 
-# mengurutkan arrBest
+# mengurutkan arrBest dari terbesar
 def sortB(A) :
-    for i in range(len(A)) :
+    l = 0
+    for a in A :
+        l += 1
+
+    for i in range(l) :
         # mencari maximum
         max_idx = i 
-        for j in range(i+1, len(A)): 
+        for j in range(i+1, l): 
             if A[max_idx][2] < A[j][2]: 
                 max_idx = j 
-              
         # Swap
         A[i], A[max_idx] = A[max_idx], A[i]
     return A
@@ -596,6 +620,7 @@ def sortB(A) :
 # Asumsi input benar
 def report() :
     global filemilik
+    global filereport
     arrReport = ['' for i in range(4)]
     arrReport[0] = input('Masukkan username: ')
     arrReport[1] = input('Tanggal kehilangan tiket: ')
@@ -603,9 +628,18 @@ def report() :
     arrReport[3] = input('Jumlah tiket yang dihilangkan: ')
 
     # mengurangi tiket pemain
-    for row in filemilik :
-        if row[0] == arrReport[0] and row[1] == arrReport[2] :
-            row[2] = int(row[2]) - int(arrReport[3])
+    for row1 in filemilik :
+        if row1[0] == arrReport[0] and row1[1] == arrReport[2] :
+            row1[2] = int(row1[2]) - int(arrReport[3])
+            break
+
+    # menulis ke filereport
+    i = 0
+    for row2 in filereport :
+        if row2 == [] :
+            filereport[i] = arrReport
+            break
+        i += 1
 
 
 
