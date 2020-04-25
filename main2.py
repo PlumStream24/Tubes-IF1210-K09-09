@@ -629,6 +629,7 @@ def report() :
 
     # mengurangi tiket pemain
     for row1 in filemilik :
+        if row1 == [] : break
         if row1[0] == arrReport[0] and row1[1] == arrReport[2] :
             row1[2] = int(row1[2]) - int(arrReport[3])
             break
