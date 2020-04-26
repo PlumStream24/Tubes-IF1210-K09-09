@@ -1,5 +1,5 @@
 # Tubes Daspro
-# Last updated : 25/04/20 - 9am
+# Last updated : 26/04/20 - 11am
 
 import csv
 
@@ -86,6 +86,7 @@ def load() :
     filekritik = toList(namafkritik)
     filereport = toList(namafreport)
 
+    print('file perusahaan Willy Wangky’s Chocolate Factory telah di-load.')
 
 ################################################## F02 - Save
 # menyimpan array data ke csv
@@ -112,6 +113,7 @@ def save() :
         csv.writer(kritik).writerows(filekritik)
         csv.writer(report).writerows(filereport)
 
+    print('Data berhasil disimpan!')
 
 ################################################## F03 - SignUp
 # Menambah user ke user.csv. Jika username telah digunakan, akan return error. Asumsi input lainnya benar.
@@ -124,7 +126,7 @@ def signUp() :
     newUser[1] = input('Masukkan tanggal lahir pemain (DD/MM/YYYY): ')
     newUser[2] = input('Masukkan tinggi badan pemain (cm): ')
     newUser[3] = input('Masukkan username pemain: ')
-    newUser[4] = input('Masukkan password pemain: ')
+    newUser[4] = encrypt(input('Masukkan password pemain: '))
     newUser[5] = 'pemain'
     newUser[6] = 0
     
@@ -154,7 +156,7 @@ def login() :
     # input sampai benar
     while True :
         username = input('Masukkan username: ')
-        password = input('Masukkan password: ')
+        password = encrypt(input('Masukkan password: '))
 
         # validasi
         for row in fileuser :
@@ -242,11 +244,13 @@ def buyTicket() :
 
     miliktiket = [belitiket[0], belitiket[1], belitiket[3]]
     katUmur = age(currentTL, belitiket[2])
-    
+    found = False
+
     for row1 in filewahana :
         if row1 == [] : break
         # validasi
         if row1[0] == belitiket[1]:
+            found = True
             if validTinggi(currentTinggi, row1[4]) and validUmur(katUmur,row1[3]) :
                 if cukupSaldo(currentSaldo, row1[2], belitiket[3]) :
                     # menambahkan tiket ke kepemilikan tiket
@@ -284,6 +288,9 @@ def buyTicket() :
                     print('Saldo anda tidak cukup. \nSilakan mengisi saldo anda.')   
             else :
                 print('Anda tidak memenuhi persyaratan untuk memainkan wahana ini. \nSilahkan menggunakan wahana lain yang tersedia.')
+
+    if not found :
+        print('ID wahana salah.')
 
 # menghitung umur berdasarkan tanggal sekarang dan tanggal lahir
 # output kategori usia berdasarkan umur tersebut
@@ -440,6 +447,8 @@ def kritik() :
             break
         i += 1
 
+    print('Kritik dan saran Anda telah kami terima.')
+
 
 ################################################## F11 - Melihat Kritik dan Saran
 # meliihat kritik terurut bedasarkan ID Wahana
@@ -463,7 +472,7 @@ def sortA(A) :
         # mencari minimum
         min_idx = i 
         for j in range(i+1, l):
-            if A[min_idx][0][:3] > A[j][0][:3]: 
+            if A[min_idx][0][:1] > A[j][0][:1]: 
                 min_idx = j 
         # Swap
         A[i], A[min_idx] = A[min_idx], A[i]
@@ -510,11 +519,12 @@ def topup() :
 
 
 ################################################## F14 - Melihat Riwayat Penggunaan Wahana
-# Melihat riwayat
+# Melihat riwayat. Asumsi input benar.
 def history() :
     global fileguna
     idwahana = input('Masukkan ID wahana: ')
-    
+
+    print('Riwayat:')
     # output riwayat penggunaan wahana
     for row in fileguna :
         if row == [] : break
@@ -528,6 +538,7 @@ def lookupTiket() :
     global filemilik, filewahana
     user = input('Masukkan username: ')
 
+    print('Riwayat:')
     #output kepemilikan tiker
     for row2 in filemilik :
         if row2 == [] : break
@@ -558,7 +569,21 @@ def shutdown() :
 
 
 ################################################## B01 - Enkripsi Password
-
+# enkripsi password
+def encrypt(words) :
+    allchar = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890!@#$%^&*()'
+    key = 5
+    enc = ''
+    for i in words :
+        n = 0
+        for j in allchar :
+            if i == j :
+                position = n
+            else :
+                n += 1
+        newposition = (position + key)%72
+        enc += allchar[newposition]
+    return enc
 
 
 ################################################## B02 - Golden Account
@@ -566,7 +591,7 @@ def golden() :
     global fileuser
     user = input('Masukkan username yang ingin di-upgrade: ')
     print('Akun anda telah di-upgrade')
-
+    #belum diimplementasikan ke fungsi lainnya
 
 ################################################## B03 - Best Wahana
 # memberikan daftar 3 wahana berdasarkan jumlah tiket yang terjual
@@ -642,6 +667,7 @@ def report() :
             break
         i += 1
 
+    print('Laporan kehilangan tiket Anda telah direkam.')
 
 
 # MAIN PROGRAM
@@ -650,5 +676,5 @@ load()
 currentTL, currentTinggi, currentUser, currentRole, currentSaldo, boolLogin = login()
 
 while boolLogin :
-    print(fileuser)
+    
     display(currentRole)
