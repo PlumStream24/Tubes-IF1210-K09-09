@@ -408,8 +408,8 @@ def refund() :
             if (int(row1[2]) - int(arrRefund[3])) >= 0 :
                 # menulis ke array
                 row1[2] = int(row1[2]) - int(arrRefund[3])
+                i = 0
                 for row3 in filerefund :
-                    i = 0
                     if row3 == []:
                         filerefund[i] = arrRefund
                         break
@@ -632,7 +632,7 @@ def sortB(A) :
     for i in range(l) :
         # mencari maximum
         max_idx = i 
-        for j in range(i+1, l): 
+        for j in range(i+1, l):
             if A[max_idx][2] < A[j][2]: 
                 max_idx = j 
         # Swap
